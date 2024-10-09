@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const questionContainer = document.querySelector("#question");
   const choiceContainer = document.querySelector("#choices");
   const nextButton = document.querySelector("#nextButton");
+  const restartButton = document.querySelector("#restartButton");
 
   // End view elements
   const resultContainer = document.querySelector("#result");
@@ -99,18 +100,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. Show the question
     // Update the inner text of the question container element and show the question text
 
-    
+    questionContainer.innerHTML = question.text;
     // 2. Update the green progress bar
     // Update the green progress bar (div#progressBar) width so that it shows the percentage of questions answered
     
-    progressBar.style.width = `65%`; // This value is hardcoded as a placeholder
-
+    progressBar.style.width = `${100/(questions.length - quiz.currentQuestionIndex)}%`; // This value is hardcoded as a placeholder
+     
 
 
     // 3. Update the question count text 
     // Update the question count (div#questionCount) show the current question out of total questions
     
-    questionCount.innerText = `Question 1 of 10`; //  This value is hardcoded as a placeholder
+    questionCount.innerText = `Question ${quiz.currentQuestionIndex +1} of ${questions.length}`; //  This value is hardcoded as a placeholder
 
 
     
@@ -123,6 +124,17 @@ document.addEventListener("DOMContentLoaded", () => {
           <label>CHOICE TEXT HERE</label>
         <br>
       */
+        question.choices.forEach((choice)=>{
+          let element = document.createElement("input");
+          let label = document.createElement("label");
+          element.type = "radio";
+          element.name = "choice";
+          element.value = choice;
+          label.innerText = choice;
+          choiceContainer.appendChild(element);
+          choiceContainer.appendChild(label);
+          choiceContainer.appendChild(document.createElement("br"))
+        })
       // Hint 1: You can use the `document.createElement()` method to create a new element.
       // Hint 2: You can use the `element.type`, `element.name`, and `element.value` properties to set the type, name, and value of an element.
       // Hint 3: You can use the `element.appendChild()` method to append an element to the choices container.
@@ -133,9 +145,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   
   function nextButtonHandler () {
-    let selectedAnswer; // A variable to store the selected answer value
-
-
+    let selectedAnswer = document.querySelector('input[type="radio"]:checked');
+    quiz.checkAnswer(selectedAnswer.value);
+    quiz.moveToNextQuestion();
+    showQuestion();
 
     // YOUR CODE HERE:
     //
@@ -168,7 +181,17 @@ document.addEventListener("DOMContentLoaded", () => {
     endView.style.display = "flex";
     
     // 3. Update the result container (div#result) inner text to show the number of correct answers out of total questions
-    resultContainer.innerText = `You scored 1 out of 1 correct answers!`; // This value is hardcoded as a placeholder
+    resultContainer.innerText = `You scored ${quiz.correctAnswers} out of ${questions.length} correct answers!`; // This value is hardcoded as a placeholder
+    restartButton.addEventListener("click", location.reload())
+  }
+  function restartQuiz (){
+    if(quiz.hasEnded()){
+       quiz.correctAnswers = 0;
+       quiz.currentQuestionIndex = 0;
+       quiz.moveToNextQuestion();
+       showQuestion()
+    }
+  
   }
   
 });
