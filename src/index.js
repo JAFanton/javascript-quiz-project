@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new Question("What is the mass–energy equivalence equation?", ["E = mc^2", "E = m*c^2", "E = m*c^3", "E = m*c"], "E = mc^2", 3),
     // Add more questions here
   ];
-  const quizDuration = 120; // 120 seconds (2 minutes)
+  const quizDuration = 10; // 120 seconds (2 minutes)
 
 
   /************  QUIZ INSTANCE  ************/
@@ -57,11 +57,27 @@ document.addEventListener("DOMContentLoaded", () => {
   // Show first question
   showQuestion();
 
+  
 
   /************  TIMER  ************/
-
-  let timer;
-
+  function timer() {
+    
+    const id = setInterval( ()=> {
+      quiz.timeRemaining--;
+      console.log(quiz.timeRemaining)
+      const minutes = Math.floor(quiz.timeRemaining / 60).toString().padStart(2, "0");
+      const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
+      const timeRemainingContainer = document.getElementById("timeRemaining");
+      timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+    
+      if (quiz.timeRemaining === 0) {
+        clearInterval(id);
+        showResults()
+        return 0;
+      }
+    }, 1000);
+}
+  
 
   /************  EVENT LISTENERS  ************/
 
@@ -81,9 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // If the quiz has ended, show the results
     if (quiz.hasEnded()) {
       showResults();
-      return;
     }
-
     // Clear the previous question text and question choices
     questionContainer.innerText = "";
     choiceContainer.innerHTML = "";
@@ -92,9 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const question = quiz.getQuestion();
     // Shuffle the choices of the current question by calling the method 'shuffleChoices()' on the question object
     question.shuffleChoices();
+    timer()
     
-    
-
     // YOUR CODE HERE:
     //
     // 1. Show the question
@@ -182,16 +195,19 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // 3. Update the result container (div#result) inner text to show the number of correct answers out of total questions
     resultContainer.innerText = `You scored ${quiz.correctAnswers} out of ${questions.length} correct answers!`; // This value is hardcoded as a placeholder
-    restartButton.addEventListener("click", location.reload())
+    restartButton.addEventListener("click", restartQuiz)
   }
   function restartQuiz (){
-    if(quiz.hasEnded()){
-       quiz.correctAnswers = 0;
-       quiz.currentQuestionIndex = 0;
-       quiz.moveToNextQuestion();
-       showQuestion()
-    }
   
+      endView.style.display = "none";
+      quizView.style.display = "flex";
+      quiz.correctAnswers = 0;
+      quiz.timeRemaining = quizDuration;
+      quiz.currentQuestionIndex = 0;
+      quiz.shuffleQuestions();
+      showQuestion();
+  
+    
   }
   
 });
